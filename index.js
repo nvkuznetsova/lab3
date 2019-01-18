@@ -11,6 +11,7 @@ const parser = new Parser();
 const zlib = require('zlib');
 const trans = require('./trans');
 const http = require('http');
+let PID;
 
 app
   .use(bodyParser.json())
@@ -170,6 +171,17 @@ app
     });
   })
 
+  //second App
+  .get('/second-serv', (req, res) => {
+    const port = process.env.PORT || 3331;
+    const secondApp = express();
+    newServer = secondApp.listen(port, () => {
+      console.log(`New server is listening on ${port}`);
+    });
+    
+    res.send(`PID: ${PID}, PPID: ${process.pid}`);
+  })
+
   //static
   .use('/static', express.static('files'))
 
@@ -183,4 +195,7 @@ app
     .set({'Content-Type' : 'text/html; charset=utf-8'})
     .status(500)
     .end('<b>Этого не было!</b>'))// n - аргумент next
-  .listen(process.env.PORT || PORT, () => console.log('OK!'));
+  .listen(process.env.PORT || PORT, () => {
+    PID = process.pid;
+    console.log('OK!')
+  });
